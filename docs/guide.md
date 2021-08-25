@@ -88,7 +88,7 @@ we recommend using another method, such as [Let's Encrypt](#let-encrypt) instead
    # This is the same as the above SSH command, but it runs in the background
    # continuously. Be sure to add `mutagen daemon start` to your ~/.bashrc to
    # start the mutagen daemon when you open a shell.
-   
+
    mutagen forward create --name=code-server tcp:127.0.0.1:8080 < instance-ip > :tcp:127.0.0.1:8080
    ```
 
@@ -370,3 +370,20 @@ module.exports = {
 3. access app at `<code-server-root>/absproxy/3454` e.g. `http://localhost:8080/absproxy/3454`
 
 Read more about `publicPath` in the [Vue.js docs](https://cli.vuejs.org/config/#publicpath)
+
+### SSH into code-server on VS Code
+
+One way you can do this is using [Cloudeflare's Argo Tunnels](https://blog.cloudflare.com/argo-tunnel/).
+
+Follow these steps on the machine where code-server is running:
+1. Install [cloudflared](https://github.com/cloudflare/cloudflared#installing-cloudflared)
+2. Run `cloudflared tunnel --url ssh://localhost:22`
+3. Go to `~/.ssh/config` and add the following:
+```shell
+Host *.trycloudflare.com
+	HostName %h
+	User root
+	Port 22
+	ProxyCommand "cloudflared location" access ssh --hostname %h
+```
+4. From inside VS Code, run `ssh coder@https://your-link.trycloudflare.com` or `ssh coder@your-link.trycloudflare.com`
