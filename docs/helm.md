@@ -128,7 +128,6 @@ Example of using `extraInitContainers`:
 ```yaml
 extraInitContainers: |
   - name: customization
-    image: {{ .Values.image.repository }}:{{ .Values.image.tag }}
     imagePullPolicy: IfNotPresent
     env:
       - name: SERVICE_URL
