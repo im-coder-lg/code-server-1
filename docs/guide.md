@@ -387,3 +387,49 @@ Host *.trycloudflare.com
 	ProxyCommand "cloudflared location" access ssh --hostname %h
 ```
 4. From inside VS Code, run `ssh coder@https://your-link.trycloudflare.com` or `ssh coder@your-link.trycloudflare.com`
+
+
+Another way to do this is by using [ngrok](https://ngrok.com), another port tunneler.
+Follow these steps on the machine where code-server is running:
+1. Get `OpenSSH-Server`, `wget`, and `unzip` before getting ngrok. Don't forget to run `sudo apt update` so that you get the latest versions.
+```bash
+sudo apt update
+sudo apt install wget unzip openssh-server
+```
+2. Start OpenSSH-Server and set the password of your computer. Eg. If you use a Railway deployment, the user is `coder` and so, the command to change the password would be `sudo passwd coder`.
+```bash
+sudo service ssh start
+sudo passwd {user} # replace user with your code-server user
+```
+3. Now, make a new/login to your ngrok account from [here](https://dashboard.ngrok.com/login)
+4. Now, get the ngrok binary from `wget` and unzip it with `unzip`:
+```bash
+wget "https://bin.equinox.io/c/4VmDzA7iaHb/ngrok-stable-linux-amd64.zip"
+unzip "ngrok-stable-linux-amd64.zip"
+```
+5. Now, go to [dashboard.ngrok.com](https://dashboard.ngrok.com) and go to the `Your Authtoken` section.
+6. Copy the Authtoken shown there.
+7. Now, go to the folder where you unzipped ngrok and store the Authtoken from the ngrok Dashboard.
+```bash
+./ngrok authtoken YOUR_AUTHTOKEN # replace YOUR_AUTHTOKEN with the ngrok authtoken.
+```
+8. Now, forward port 22, which is the SSH port with this command:
+```bash
+./ngrok tcp 22
+```
+Now, you get a screen in the terminal like this:
+```output
+ngrok by @inconshreveable(Ctrl+C to quit)
+                                     
+Session Status                online
+Account                       {Your name} (Plan: Free)
+Version                       2.3.40
+Region                        United States (us)
+Web Interface                 http://127.0.0.1:4040                             
+Forwarding                    tcp://0.tcp.ngrok.io:19028 -> localhost:22
+```
+Copy the link that is given like `0.tcp.ngrok.io` and remeber the port number. Type this in your local VS Code:
+```bash
+ssh user@0.tcp.ngrok.io -p 19028
+```
+The port redirects you to the SSH port(22) and you can successfully connect to code-server by entering the password you set for the user.
